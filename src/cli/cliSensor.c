@@ -95,9 +95,7 @@ void sensorCLI()
                 cliPortPrintF("Accel One G:               %9.4f\n",   accelOneG);
                 cliPortPrintF("Accel Cutoff:              %9.4f\n",   eepromConfig.accelCutoff);
                 cliPortPrintF("KpAcc (MARG):              %9.4f\n",   eepromConfig.KpAcc);
-                cliPortPrintF("KiAcc (MARG):              %9.4f\n",   eepromConfig.KiAcc);
                 cliPortPrintF("KpMag (MARG):              %9.4f\n",   eepromConfig.KpMag);
-                cliPortPrintF("KiMag (MARG):              %9.4f\n",   eepromConfig.KiMag);
                 cliPortPrintF("hdot est/h est Comp Fil A: %9.4f\n",   eepromConfig.compFilterA);
                 cliPortPrintF("hdot est/h est Comp Fil B: %9.4f\n",   eepromConfig.compFilterB);
 
@@ -277,9 +275,8 @@ void sensorCLI()
 
             ///////////////////////////
 
-            case 'C': // kpAcc, kiAcc
+            case 'C': // kpAcc
                 eepromConfig.KpAcc = readFloatCLI();
-                eepromConfig.KiAcc = readFloatCLI();
 
                 sensorQuery = 'a';
                 validQuery = true;
@@ -287,9 +284,8 @@ void sensorCLI()
 
             ///////////////////////////
 
-            case 'D': // kpMag, kiMag
+            case 'D': // kpMag
                 eepromConfig.KpMag = readFloatCLI();
-                eepromConfig.KiMag = readFloatCLI();
 
                 sensorQuery = 'a';
                 validQuery = true;
@@ -351,8 +347,8 @@ void sensorCLI()
 			   		cliPortPrint("'a' Display Sensor Data\n");
 
 			   	cliPortPrint("'b' MPU Calibration                        'B' Set Accel Cutoff                     BAccelCutoff\n");
-			   	cliPortPrint("'c' Magnetometer Calibration               'C' Set kpAcc/kiAcc                      CKpAcc;KiAcc\n");
-			   	cliPortPrint("'d' Accel Calibration                      'D' Set kpMag/kiMag                      DKpMag;KiMag\n");
+			   	cliPortPrint("'c' Magnetometer Calibration               'C' Set kpAcc                            CKpAcc\n");
+			   	cliPortPrint("'d' Accel Calibration                      'D' Set kpMag                            DKpMag\n");
 			   	cliPortPrint("                                           'E' Set h dot est/h est Comp Filter A/B  EA;B\n");
 			   	cliPortPrint("'m' Toggle MPU3050/MPU6050\n");
 			   	cliPortPrint("                                           'N' Set Voltage Monitor Trip Points      Nlow;veryLow;maxLow\n");

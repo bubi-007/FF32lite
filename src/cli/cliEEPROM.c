@@ -108,7 +108,6 @@ void eepromCLI()
             case 'a': // config struct data
                 c1 = eepromConfig.CRCAtEnd[0];
 
-                zeroPIDintegralError();
                 zeroPIDstates();
 
                 c2 = crc32bEEPROM(&eepromConfig, false);
@@ -133,7 +132,7 @@ void eepromCLI()
                 // we assume the flyer is not in the air, so that this is ok;
                 // these change randomly when not in flight and can mistakenly
                 // make one think that the in-memory eeprom struct has changed
-                zeroPIDintegralError();
+
                 zeroPIDstates();
 
                 cliPortPrintF("\n");
@@ -221,7 +220,7 @@ void eepromCLI()
                 {
                     // check to see if the newly received eeprom config
                     // actually differs from what's in-memory
-                    zeroPIDintegralError();
+
                     zeroPIDstates();
 
                     int i;

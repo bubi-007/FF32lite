@@ -206,11 +206,7 @@ typedef struct eepromConfig_t
 
     float KpAcc;
 
-    float KiAcc;
-
     float KpMag;
-
-    float KiMag;
 
     float compFilterA;
 
@@ -259,6 +255,14 @@ typedef struct eepromConfig_t
     uint8_t  freeMixMotors;
 
     float    freeMix[6][3];
+
+    ///////////////////////////////////
+
+    float    rollAttAltCompensationGain;
+    float    rollAttAltCompensationLimit;
+
+    float    pitchAttAltCompensationGain;
+    float    pitchAttAltCompensationLimit;
 
     ///////////////////////////////////
 

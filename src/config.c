@@ -37,7 +37,7 @@ along with FF32lite. If not, see <http://www.gnu.org/licenses/>.
 
 const char rcChannelLetters[] = "AERT1234";
 
-static uint8_t checkNewEEPROMConf = 7;
+static uint8_t checkNewEEPROMConf = 8;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -112,7 +112,6 @@ uint8_t writeEEPROM(void)
     uint32_t       *dst = (uint32_t*)FLASH_WRITE_EEPROM_ADDR;
 
     // there's no reason to write these values to EEPROM, they'll just be noise
-    zeroPIDintegralError();
     zeroPIDstates();
 
     if (src->CRCFlags & CRC_HistoryBad)
@@ -221,14 +220,12 @@ void checkFirstTime(bool eepromReset)
 
 		///////////////////////////////
 
-		eepromConfig.accelCutoff = 1.0f;
+		eepromConfig.accelCutoff = 0.25f;
 
 		///////////////////////////////
 
-		eepromConfig.KpAcc = 5.0f;  // proportional gain governs rate of convergence to accelerometer
-	    eepromConfig.KiAcc = 0.0f;  // integral gain governs rate of convergence of gyroscope biases
+		eepromConfig.KpAcc = 1.0f;  // proportional gain governs rate of convergence to accelerometer
 	    eepromConfig.KpMag = 5.0f;  // proportional gain governs rate of convergence to magnetometer
-	    eepromConfig.KiMag = 0.0f;  // integral gain governs rate of convergence of gyroscope biases
 
 	    ///////////////////////////////
 
@@ -296,109 +293,87 @@ void checkFirstTime(bool eepromReset)
 		eepromConfig.freeMix[5][PITCH]    =  0.0f;
         eepromConfig.freeMix[5][YAW  ]    =  0.0f;
 
+        eepromConfig.rollAttAltCompensationGain   =  1.0f;
+        eepromConfig.rollAttAltCompensationLimit  =  0.0f * D2R;
+
+        eepromConfig.pitchAttAltCompensationGain  =  1.0f;
+        eepromConfig.pitchAttAltCompensationLimit =  0.0f * D2R;
+
         eepromConfig.midCommand   = 3000.0f;
         eepromConfig.minCheck     = (float)(MINCOMMAND + 200);
         eepromConfig.maxCheck     = (float)(MAXCOMMAND - 200);
         eepromConfig.minThrottle  = (float)(MINCOMMAND + 200);
         eepromConfig.maxThrottle  = (float)(MAXCOMMAND);
 
-        eepromConfig.PID[ROLL_RATE_PID].B               =   1.0f;
-        eepromConfig.PID[ROLL_RATE_PID].P               = 250.0f;
-        eepromConfig.PID[ROLL_RATE_PID].I               = 100.0f;
-        eepromConfig.PID[ROLL_RATE_PID].D               =   0.0f;
-        eepromConfig.PID[ROLL_RATE_PID].iTerm           =   0.0f;
-        eepromConfig.PID[ROLL_RATE_PID].windupGuard     = 100.0f;  // PWMs
-        eepromConfig.PID[ROLL_RATE_PID].lastDcalcValue  =   0.0f;
-        eepromConfig.PID[ROLL_RATE_PID].lastDterm       =   0.0f;
-        eepromConfig.PID[ROLL_RATE_PID].lastLastDterm   =   0.0f;
-        eepromConfig.PID[ROLL_RATE_PID].dErrorCalc      =   D_ERROR;
-        eepromConfig.PID[ROLL_RATE_PID].type            =   OTHER;
+        ///////////////////////////////
 
-        eepromConfig.PID[PITCH_RATE_PID].B              =   1.0f;
-        eepromConfig.PID[PITCH_RATE_PID].P              = 250.0f;
-        eepromConfig.PID[PITCH_RATE_PID].I              = 100.0f;
-        eepromConfig.PID[PITCH_RATE_PID].D              =   0.0f;
-        eepromConfig.PID[PITCH_RATE_PID].iTerm          =   0.0f;
-        eepromConfig.PID[PITCH_RATE_PID].windupGuard    = 100.0f;  // PWMs
-        eepromConfig.PID[PITCH_RATE_PID].lastDcalcValue =   0.0f;
-        eepromConfig.PID[PITCH_RATE_PID].lastDterm      =   0.0f;
-        eepromConfig.PID[PITCH_RATE_PID].lastLastDterm  =   0.0f;
-        eepromConfig.PID[PITCH_RATE_PID].dErrorCalc     =   D_ERROR;
-        eepromConfig.PID[PITCH_RATE_PID].type           =   OTHER;
+        eepromConfig.PID[ROLL_RATE_PID].P                =  250.0f;
+        eepromConfig.PID[ROLL_RATE_PID].I                =  100.0f;
+        eepromConfig.PID[ROLL_RATE_PID].D                =    0.0f;
+        eepromConfig.PID[ROLL_RATE_PID].N                =  100.0f;
+        eepromConfig.PID[ROLL_RATE_PID].integratorState  =    0.0f;
+        eepromConfig.PID[ROLL_RATE_PID].filterState      =    0.0f;
+        eepromConfig.PID[ROLL_RATE_PID].prevResetState   =   false;
 
-        eepromConfig.PID[YAW_RATE_PID].B                =   1.0f;
-        eepromConfig.PID[YAW_RATE_PID].P                = 350.0f;
-        eepromConfig.PID[YAW_RATE_PID].I                = 100.0f;
-        eepromConfig.PID[YAW_RATE_PID].D                =   0.0f;
-        eepromConfig.PID[YAW_RATE_PID].iTerm            =   0.0f;
-        eepromConfig.PID[YAW_RATE_PID].windupGuard      = 100.0f;  // PWMs
-        eepromConfig.PID[YAW_RATE_PID].lastDcalcValue   =   0.0f;
-        eepromConfig.PID[YAW_RATE_PID].lastDterm        =   0.0f;
-        eepromConfig.PID[YAW_RATE_PID].lastLastDterm    =   0.0f;
-        eepromConfig.PID[YAW_RATE_PID].dErrorCalc       =   D_ERROR;
-        eepromConfig.PID[YAW_RATE_PID].type             =   OTHER;
+        eepromConfig.PID[PITCH_RATE_PID].P               =  250.0f;
+        eepromConfig.PID[PITCH_RATE_PID].I               =  100.0f;
+        eepromConfig.PID[PITCH_RATE_PID].D               =    0.0f;
+        eepromConfig.PID[PITCH_RATE_PID].N               =  100.0f;
+        eepromConfig.PID[PITCH_RATE_PID].integratorState =    0.0f;
+        eepromConfig.PID[PITCH_RATE_PID].filterState     =    0.0f;
+        eepromConfig.PID[PITCH_RATE_PID].prevResetState  =   false;
 
-        eepromConfig.PID[ROLL_ATT_PID].B                =   1.0f;
-        eepromConfig.PID[ROLL_ATT_PID].P                =   2.0f;
-        eepromConfig.PID[ROLL_ATT_PID].I                =   0.0f;
-        eepromConfig.PID[ROLL_ATT_PID].D                =   0.0f;
-        eepromConfig.PID[ROLL_ATT_PID].iTerm            =   0.0f;
-        eepromConfig.PID[ROLL_ATT_PID].windupGuard      =   0.5f;  // radians/sec
-        eepromConfig.PID[ROLL_ATT_PID].lastDcalcValue   =   0.0f;
-        eepromConfig.PID[ROLL_ATT_PID].lastDterm        =   0.0f;
-        eepromConfig.PID[ROLL_ATT_PID].lastLastDterm    =   0.0f;
-        eepromConfig.PID[ROLL_ATT_PID].dErrorCalc       =   D_ERROR;
-        eepromConfig.PID[ROLL_ATT_PID].type             =   ANGULAR;
+        eepromConfig.PID[YAW_RATE_PID].P                 =  350.0f;
+        eepromConfig.PID[YAW_RATE_PID].I                 =  100.0f;
+        eepromConfig.PID[YAW_RATE_PID].D                 =    0.0f;
+        eepromConfig.PID[YAW_RATE_PID].N                 =  100.0f;
+        eepromConfig.PID[YAW_RATE_PID].integratorState   =    0.0f;
+        eepromConfig.PID[YAW_RATE_PID].filterState       =    0.0f;
+        eepromConfig.PID[YAW_RATE_PID].prevResetState    =   false;
 
-        eepromConfig.PID[PITCH_ATT_PID].B               =   1.0f;
-        eepromConfig.PID[PITCH_ATT_PID].P               =   2.0f;
-        eepromConfig.PID[PITCH_ATT_PID].I               =   0.0f;
-        eepromConfig.PID[PITCH_ATT_PID].D               =   0.0f;
-        eepromConfig.PID[PITCH_ATT_PID].iTerm           =   0.0f;
-        eepromConfig.PID[PITCH_ATT_PID].windupGuard     =   0.5f;  // radians/sec
-        eepromConfig.PID[PITCH_ATT_PID].lastDcalcValue  =   0.0f;
-        eepromConfig.PID[PITCH_ATT_PID].lastDterm       =   0.0f;
-        eepromConfig.PID[PITCH_ATT_PID].lastLastDterm   =   0.0f;
-        eepromConfig.PID[PITCH_ATT_PID].dErrorCalc      =   D_ERROR;
-        eepromConfig.PID[PITCH_ATT_PID].type            =   ANGULAR;
+        eepromConfig.PID[ROLL_ATT_PID].P                 =    2.0f;
+        eepromConfig.PID[ROLL_ATT_PID].I                 =    0.0f;
+        eepromConfig.PID[ROLL_ATT_PID].D                 =    0.0f;
+        eepromConfig.PID[ROLL_ATT_PID].N                 =  100.0f;
+        eepromConfig.PID[ROLL_ATT_PID].integratorState   =    0.0f;
+        eepromConfig.PID[ROLL_ATT_PID].filterState       =    0.0f;
+        eepromConfig.PID[ROLL_ATT_PID].prevResetState    =   false;
 
-        eepromConfig.PID[HEADING_PID].B                 =   1.0f;
-        eepromConfig.PID[HEADING_PID].P                 =   3.0f;
-        eepromConfig.PID[HEADING_PID].I                 =   0.0f;
-        eepromConfig.PID[HEADING_PID].D                 =   0.0f;
-        eepromConfig.PID[HEADING_PID].iTerm             =   0.0f;
-        eepromConfig.PID[HEADING_PID].windupGuard       =   0.5f;  // radians/sec
-        eepromConfig.PID[HEADING_PID].lastDcalcValue    =   0.0f;
-        eepromConfig.PID[HEADING_PID].lastDterm         =   0.0f;
-        eepromConfig.PID[HEADING_PID].lastLastDterm     =   0.0f;
-        eepromConfig.PID[HEADING_PID].dErrorCalc        =   D_ERROR;
-        eepromConfig.PID[HEADING_PID].type              =   ANGULAR;
+        eepromConfig.PID[PITCH_ATT_PID].P                =    2.0f;
+        eepromConfig.PID[PITCH_ATT_PID].I                =    0.0f;
+        eepromConfig.PID[PITCH_ATT_PID].D                =    0.0f;
+        eepromConfig.PID[PITCH_ATT_PID].N                =  100.0f;
+        eepromConfig.PID[PITCH_ATT_PID].integratorState  =    0.0f;
+        eepromConfig.PID[PITCH_ATT_PID].filterState      =    0.0f;
+        eepromConfig.PID[PITCH_ATT_PID].prevResetState   =   false;
 
-        eepromConfig.PID[HDOT_PID].B                    =   1.0f;
-        eepromConfig.PID[HDOT_PID].P                    =   2.0f;
-        eepromConfig.PID[HDOT_PID].I                    =   0.0f;
-        eepromConfig.PID[HDOT_PID].D                    =   0.0f;
-        eepromConfig.PID[HDOT_PID].iTerm                =   0.0f;
-        eepromConfig.PID[HDOT_PID].windupGuard          =   5.0f;
-        eepromConfig.PID[HDOT_PID].lastDcalcValue       =   0.0f;
-        eepromConfig.PID[HDOT_PID].lastDterm            =   0.0f;
-        eepromConfig.PID[HDOT_PID].lastLastDterm        =   0.0f;
-        eepromConfig.PID[HDOT_PID].dErrorCalc           =   D_ERROR;
-        eepromConfig.PID[HDOT_PID].type                 =   OTHER;
+        eepromConfig.PID[HEADING_PID].P                  =    3.0f;
+        eepromConfig.PID[HEADING_PID].I                  =    0.0f;
+        eepromConfig.PID[HEADING_PID].D                  =    0.0f;
+        eepromConfig.PID[HEADING_PID].N                  =  100.0f;
+        eepromConfig.PID[HEADING_PID].integratorState    =    0.0f;
+        eepromConfig.PID[HEADING_PID].filterState        =    0.0f;
+        eepromConfig.PID[HEADING_PID].prevResetState     =   false;
 
-        eepromConfig.PID[H_PID].B                       =   1.0f;
-        eepromConfig.PID[H_PID].P                       =   2.0f;
-        eepromConfig.PID[H_PID].I                       =   0.0f;
-        eepromConfig.PID[H_PID].D                       =   0.0f;
-        eepromConfig.PID[H_PID].iTerm                   =   0.0f;
-        eepromConfig.PID[H_PID].windupGuard             =   5.0f;
-        eepromConfig.PID[H_PID].lastDcalcValue          =   0.0f;
-        eepromConfig.PID[H_PID].lastDterm               =   0.0f;
-        eepromConfig.PID[H_PID].lastLastDterm           =   0.0f;
-        eepromConfig.PID[H_PID].dErrorCalc              =   D_ERROR;
-        eepromConfig.PID[H_PID].type                    =   OTHER;
+        eepromConfig.PID[HDOT_PID].P                     =    2.0f;
+        eepromConfig.PID[HDOT_PID].I                     =    0.0f;
+        eepromConfig.PID[HDOT_PID].D                     =    0.0f;
+        eepromConfig.PID[HDOT_PID].N                     =  100.0f;
+        eepromConfig.PID[HDOT_PID].integratorState       =    0.0f;
+        eepromConfig.PID[HDOT_PID].filterState           =    0.0f;
+        eepromConfig.PID[HDOT_PID].prevResetState        =   false;
 
-		eepromConfig.batteryCells         = 3;
+        eepromConfig.PID[H_PID].P                        =    2.0f;
+        eepromConfig.PID[H_PID].I                        =    0.0f;
+        eepromConfig.PID[H_PID].D                        =    0.0f;
+        eepromConfig.PID[H_PID].N                        =  100.0f;
+        eepromConfig.PID[H_PID].integratorState          =    0.0f;
+        eepromConfig.PID[H_PID].filterState              =    0.0f;
+        eepromConfig.PID[H_PID].prevResetState           =   false;
+
+		///////////////////////////////
+
+        eepromConfig.batteryCells         = 3;
 		eepromConfig.voltageMonitorScale  = 11.0f / 1.0f;
 		eepromConfig.voltageMonitorBias   = 0.0f;
 

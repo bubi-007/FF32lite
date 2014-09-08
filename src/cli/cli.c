@@ -117,16 +117,13 @@ void readCliPID(unsigned char PIDid)
 {
   struct PIDdata* pid = &eepromConfig.PID[PIDid];
 
-  pid->B             = readFloatCLI();
-  pid->P             = readFloatCLI();
-  pid->I             = readFloatCLI();
-  pid->D             = readFloatCLI();
-  pid->windupGuard   = readFloatCLI();
-  pid->iTerm          = 0.0f;
-  pid->lastDcalcValue = 0.0f;
-  pid->lastDterm      = 0.0f;
-  pid->lastLastDterm  = 0.0f;
-  pid->dErrorCalc     =(uint8_t)readFloatCLI();
+  pid->P               = readFloatCLI();
+  pid->I               = readFloatCLI();
+  pid->D               = readFloatCLI();
+  pid->N               = readFloatCLI();
+  pid->integratorState = 0.0f;
+  pid->filterState     = 0.0f;
+  pid->prevResetState  = false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -181,26 +178,20 @@ void cliCom(void)
             ///////////////////////////////
 
             case 'a': // Rate PIDs
-                cliPortPrintF("\nRoll Rate PID:  %8.4f, %8.4f, %8.4f, %8.4f, %8.4f, %s\n", eepromConfig.PID[ROLL_RATE_PID].B,
-                                		                                                   eepromConfig.PID[ROLL_RATE_PID].P,
-                    		                                                               eepromConfig.PID[ROLL_RATE_PID].I,
-                    		                                                               eepromConfig.PID[ROLL_RATE_PID].D,
-                     		                                                               eepromConfig.PID[ROLL_RATE_PID].windupGuard,
-                    		                                                               eepromConfig.PID[ROLL_RATE_PID].dErrorCalc ? "Error" : "State");
+                cliPortPrintF("\nRoll Rate PID:  %8.4f, %8.4f, %8.4f, %8.4f\n", eepromConfig.PID[ROLL_RATE_PID].P,
+                    		                                                    eepromConfig.PID[ROLL_RATE_PID].I,
+                    		                                                    eepromConfig.PID[ROLL_RATE_PID].D,
+                	    	                                                    eepromConfig.PID[ROLL_RATE_PID].N);
 
-                cliPortPrintF("Pitch Rate PID: %8.4f, %8.4f, %8.4f, %8.4f, %8.4f, %s\n",   eepromConfig.PID[PITCH_RATE_PID].B,
-                                		                                                   eepromConfig.PID[PITCH_RATE_PID].P,
-                    		                                                               eepromConfig.PID[PITCH_RATE_PID].I,
-                    		                                                               eepromConfig.PID[PITCH_RATE_PID].D,
-                    		                                                               eepromConfig.PID[PITCH_RATE_PID].windupGuard,
-                    		                                                               eepromConfig.PID[PITCH_RATE_PID].dErrorCalc ? "Error" : "State");
+                cliPortPrintF(  "Pitch Rate PID: %8.4f, %8.4f, %8.4f, %8.4f\n", eepromConfig.PID[PITCH_RATE_PID].P,
+                    		                                                    eepromConfig.PID[PITCH_RATE_PID].I,
+                    		                                                    eepromConfig.PID[PITCH_RATE_PID].D,
+                    		                                                    eepromConfig.PID[PITCH_RATE_PID].N);
 
-                cliPortPrintF("Yaw Rate PID:   %8.4f, %8.4f, %8.4f, %8.4f, %8.4f, %s\n",   eepromConfig.PID[YAW_RATE_PID].B,
-                                  		                                                   eepromConfig.PID[YAW_RATE_PID].P,
-                    		                                                               eepromConfig.PID[YAW_RATE_PID].I,
-                    		                                                               eepromConfig.PID[YAW_RATE_PID].D,
-                    		                                                               eepromConfig.PID[YAW_RATE_PID].windupGuard,
-                    		                                                               eepromConfig.PID[YAW_RATE_PID].dErrorCalc ? "Error" : "State");
+                cliPortPrintF(  "Yaw Rate PID:   %8.4f, %8.4f, %8.4f, %8.4f\n", eepromConfig.PID[YAW_RATE_PID].P,
+                    		                                                    eepromConfig.PID[YAW_RATE_PID].I,
+                     		                                                    eepromConfig.PID[YAW_RATE_PID].D,
+                	    	                                                    eepromConfig.PID[YAW_RATE_PID].N);
                 cliQuery = 'x';
                 validCliCommand = false;
                 break;
@@ -208,39 +199,32 @@ void cliCom(void)
             ///////////////////////////////
 
             case 'b': // Attitude PIDs
-                cliPortPrintF("\nRoll Attitude PID:  %8.4f, %8.4f, %8.4f, %8.4f, %8.4f, %s\n", eepromConfig.PID[ROLL_ATT_PID].B,
-                  		                                                                       eepromConfig.PID[ROLL_ATT_PID].P,
-                   		                                                                       eepromConfig.PID[ROLL_ATT_PID].I,
-                   		                                                                       eepromConfig.PID[ROLL_ATT_PID].D,
-                   		                                                                       eepromConfig.PID[ROLL_ATT_PID].windupGuard,
-                   		                                                                       eepromConfig.PID[ROLL_ATT_PID].dErrorCalc ? "Error" : "State");
+                cliPortPrintF("\nRoll Attitude PID:  %8.4f, %8.4f, %8.4f, %8.4f\n", eepromConfig.PID[ROLL_ATT_PID].P,
+                   		                                                            eepromConfig.PID[ROLL_ATT_PID].I,
+                   		                                                            eepromConfig.PID[ROLL_ATT_PID].D,
+                   		                                                            eepromConfig.PID[ROLL_ATT_PID].N);
 
-                cliPortPrintF("Pitch Attitude PID: %8.4f, %8.4f, %8.4f, %8.4f, %8.4f, %s\n",   eepromConfig.PID[PITCH_ATT_PID].B,
-                   		                                                                       eepromConfig.PID[PITCH_ATT_PID].P,
-                   		                                                                       eepromConfig.PID[PITCH_ATT_PID].I,
-                   		                                                                       eepromConfig.PID[PITCH_ATT_PID].D,
-                   		                                                                       eepromConfig.PID[PITCH_ATT_PID].windupGuard,
-                   		                                                                       eepromConfig.PID[PITCH_ATT_PID].dErrorCalc ? "Error" : "State");
+                cliPortPrintF(  "Pitch Attitude PID: %8.4f, %8.4f, %8.4f, %8.4f\n", eepromConfig.PID[PITCH_ATT_PID].P,
+                   		                                                            eepromConfig.PID[PITCH_ATT_PID].I,
+                   		                                                            eepromConfig.PID[PITCH_ATT_PID].D,
+                   		                                                            eepromConfig.PID[PITCH_ATT_PID].N);
 
-                cliPortPrintF("Heading PID:        %8.4f, %8.4f, %8.4f, %8.4f, %8.4f, %s\n",   eepromConfig.PID[HEADING_PID].B,
-                   		                                                                       eepromConfig.PID[HEADING_PID].P,
-                   		                                                                       eepromConfig.PID[HEADING_PID].I,
-                   		                                                                       eepromConfig.PID[HEADING_PID].D,
-                   		                                                                       eepromConfig.PID[HEADING_PID].windupGuard,
-                   		                                                                       eepromConfig.PID[HEADING_PID].dErrorCalc ? "Error" : "State");
+                cliPortPrintF(  "Heading PID:        %8.4f, %8.4f, %8.4f, %8.4f\n", eepromConfig.PID[HEADING_PID].P,
+                   		                                                            eepromConfig.PID[HEADING_PID].I,
+                   		                                                            eepromConfig.PID[HEADING_PID].D,
+                   		                                                            eepromConfig.PID[HEADING_PID].N);
                 cliQuery = 'x';
                 validCliCommand = false;
                 break;
 
+
             ///////////////////////////////
 
             case 'c': // Velocity PIDs
-                cliPortPrintF("\nhDot PID:  %8.4f, %8.4f, %8.4f, %8.4f, %8.4f, %s\n",   eepromConfig.PID[HDOT_PID].B,
-                   		                                                                eepromConfig.PID[HDOT_PID].P,
-                   		                                                                eepromConfig.PID[HDOT_PID].I,
-                   		                                                                eepromConfig.PID[HDOT_PID].D,
-                   		                                                                eepromConfig.PID[HDOT_PID].windupGuard,
-                   		                                                                eepromConfig.PID[HDOT_PID].dErrorCalc ? "Error" : "State");
+                cliPortPrintF(  "hDot PID:  %8.4f, %8.4f, %8.4f, %8.4f\n", eepromConfig.PID[HDOT_PID].P,
+                   		                                                   eepromConfig.PID[HDOT_PID].I,
+                   		                                                   eepromConfig.PID[HDOT_PID].D,
+                   		                                                   eepromConfig.PID[HDOT_PID].N);
                 cliQuery = 'x';
                 validCliCommand = false;
                 break;
@@ -248,12 +232,10 @@ void cliCom(void)
             ///////////////////////////////
 
             case 'd': // Position PIDs
-                cliPortPrintF("\nh PID:  %8.4f, %8.4f, %8.4f, %8.4f, %8.4f, %s\n",   eepromConfig.PID[H_PID].B,
-                   		                                                             eepromConfig.PID[H_PID].P,
-                   		                                                             eepromConfig.PID[H_PID].I,
-                   		                                                             eepromConfig.PID[H_PID].D,
-                   		                                                             eepromConfig.PID[H_PID].windupGuard,
-                   		                                                             eepromConfig.PID[H_PID].dErrorCalc ? "Error" : "State");
+                cliPortPrintF(  "h PID:  %8.4f, %8.4f, %8.4f, %8.4f\n", eepromConfig.PID[H_PID].P,
+                   		                                                eepromConfig.PID[H_PID].I,
+                   		                                                eepromConfig.PID[H_PID].D,
+                   		                                                eepromConfig.PID[H_PID].N);
                 cliQuery = 'x';
                 validCliCommand = false;
               	break;
@@ -343,9 +325,9 @@ void cliCom(void)
             ///////////////////////////////
 
             case 'm': // Axis PIDs
-            	cliPortPrintF("%9.4f, %9.4f, %9.4f\n", axisPID[ROLL ],
-               			                               axisPID[PITCH],
-               			                               axisPID[YAW  ]);
+            	cliPortPrintF("%9.4f, %9.4f, %9.4f\n", ratePID[ROLL ],
+               			                               ratePID[PITCH],
+               			                               ratePID[YAW  ]);
                	validCliCommand = false;
                	break;
 
