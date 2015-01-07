@@ -80,12 +80,12 @@ void bmp085ReadTemperatureRequestPressure(void)
 {
     uint8_t data[2];
 
-    i2cRead(BMP085_ADDRESS, BMP085_ADC_OUT_MSB_REG, 2, data);
+    i2cRead(I2C2, BMP085_ADDRESS, BMP085_ADC_OUT_MSB_REG, 2, data);
 
     uncompensatedTemperature.bytes[1] = data[0];
     uncompensatedTemperature.bytes[0] = data[1];
 
-    i2cWrite(BMP085_ADDRESS, BMP085_CTRL_MEAS_REG, BMP085_P_MEASURE);
+    i2cWrite(I2C2, BMP085_ADDRESS, BMP085_CTRL_MEAS_REG, BMP085_P_MEASURE);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -96,7 +96,7 @@ void bmp085ReadPressureRequestTemperature(void)
 {
     uint8_t data[3];
 
-    i2cRead(BMP085_ADDRESS, BMP085_ADC_OUT_MSB_REG, 3, data);
+    i2cRead(I2C2, BMP085_ADDRESS, BMP085_ADC_OUT_MSB_REG, 3, data);
 
     uncompensatedPressure.bytes[2] = data[0];
     uncompensatedPressure.bytes[1] = data[1];
@@ -104,7 +104,7 @@ void bmp085ReadPressureRequestTemperature(void)
 
     uncompensatedPressure.value = uncompensatedPressure.value >> (8 - OSS);
 
-    i2cWrite(BMP085_ADDRESS, BMP085_CTRL_MEAS_REG, BMP085_T_MEASURE);
+    i2cWrite(I2C2, BMP085_ADDRESS, BMP085_CTRL_MEAS_REG, BMP085_T_MEASURE);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -153,7 +153,7 @@ void initBmp085(void)
 
     delay(15);
 
-    i2cRead(BMP085_ADDRESS, BMP085_PROM_START_ADDR, BMP085_PROM_DATA_LEN, promData);
+    i2cRead(I2C2, BMP085_ADDRESS, BMP085_PROM_START_ADDR, BMP085_PROM_DATA_LEN, promData);
 
     ac1.bytes[1] = promData[0];
     ac1.bytes[0] = promData[1];
@@ -180,7 +180,7 @@ void initBmp085(void)
     md.bytes[1] = promData[20];
     md.bytes[0] = promData[21];
 
-    i2cWrite(BMP085_ADDRESS, BMP085_CTRL_MEAS_REG, BMP085_T_MEASURE);
+    i2cWrite(I2C2, BMP085_ADDRESS, BMP085_CTRL_MEAS_REG, BMP085_T_MEASURE);
 
     delay(10);
 

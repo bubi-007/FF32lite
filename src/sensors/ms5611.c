@@ -65,22 +65,22 @@ void ms5611ReadTemperatureRequestPressure(void)
 {
     uint8_t data[3];
 
-    i2cRead(MS5611_ADDRESS, 0x00, 3, data);    // Request temperature read
+    i2cRead(I2C2, MS5611_ADDRESS, 0x00, 3, data);    // Request temperature read
 
     d2.bytes[2] = data[0];
     d2.bytes[1] = data[1];
     d2.bytes[0] = data[2];
 
     #if   (OSR ==  256)
-	    i2cWrite(MS5611_ADDRESS, 0xFF, 0x40);  // Request pressure conversion
+	    i2cWriteI2C2, (MS5611_ADDRESS, 0xFF, 0x40);  // Request pressure conversion
 	#elif (OSR ==  512)
-	    i2cWrite(MS5611_ADDRESS, 0xFF, 0x42);
+	    i2cWrite(I2C2, MS5611_ADDRESS, 0xFF, 0x42);
 	#elif (OSR == 1024)
-	    i2cWrite(MS5611_ADDRESS, 0xFF, 0x44);
+	    i2cWrite(I2C2, MS5611_ADDRESS, 0xFF, 0x44);
 	#elif (OSR == 2048)
-	    i2cWrite(MS5611_ADDRESS, 0xFF, 0x46);
+	    i2cWrite(I2C2, MS5611_ADDRESS, 0xFF, 0x46);
 	#elif (OSR == 4096)
-	    i2cWrite(MS5611_ADDRESS, 0xFF, 0x48);
+	    i2cWrite(I2C2, MS5611_ADDRESS, 0xFF, 0x48);
     #endif
 }
 
@@ -92,22 +92,22 @@ void ms5611ReadPressureRequestTemperature(void)
 {
     uint8_t data[3];
 
-    i2cRead(MS5611_ADDRESS, 0x00, 3, data);    // Request pressure read
+    i2cRead(I2C2, MS5611_ADDRESS, 0x00, 3, data);    // Request pressure read
 
     d1.bytes[2] = data[0];
     d1.bytes[1] = data[1];
     d1.bytes[0] = data[2];
 
     #if   (OSR ==  256)
-	    i2cWrite(MS5611_ADDRESS, 0xFF, 0x50);   // Request temperature converison
+	    i2cWrite(I2C2, MS5611_ADDRESS, 0xFF, 0x50);   // Request temperature converison
 	#elif (OSR ==  512)
-	    i2cWrite(MS5611_ADDRESS, 0xFF, 0x52);
+	    i2cWrite(I2C2, MS5611_ADDRESS, 0xFF, 0x52);
 	#elif (OSR == 1024)
-	    i2cWrite(MS5611_ADDRESS, 0xFF, 0x54);
+	    i2cWrite(I2C2, MS5611_ADDRESS, 0xFF, 0x54);
 	#elif (OSR == 2048)
-	    i2cWrite(MS5611_ADDRESS, 0xFF, 0x56);
+	    i2cWrite(I2C2, MS5611_ADDRESS, 0xFF, 0x56);
 	#elif (OSR == 4096)
-	    i2cWrite(MS5611_ADDRESS, 0xFF, 0x58);
+	    i2cWrite(I2C2, MS5611_ADDRESS, 0xFF, 0x58);
     #endif
 }
 
@@ -176,44 +176,44 @@ void initMs5611(void)
 {
     uint8_t data[2];
 
-    i2cWrite(MS5611_ADDRESS, 0xFF, 0x1E);      // Reset Device
+    i2cWrite(I2C2, MS5611_ADDRESS, 0xFF, 0x1E);      // Reset Device
 
     delay(10);
 
-    i2cRead(MS5611_ADDRESS, 0xA2, 2, data);    // Read Calibration Data C1
+    i2cRead(I2C2, MS5611_ADDRESS, 0xA2, 2, data);    // Read Calibration Data C1
     c1.bytes[1] = data[0];
     c1.bytes[0] = data[1];
 
-    i2cRead(MS5611_ADDRESS, 0xA4, 2, data);    // Read Calibration Data C2
+    i2cRead(I2C2, MS5611_ADDRESS, 0xA4, 2, data);    // Read Calibration Data C2
     c2.bytes[1] = data[0];
     c2.bytes[0] = data[1];
 
-    i2cRead(MS5611_ADDRESS, 0xA6, 2, data);    // Read Calibration Data C3
+    i2cRead(I2C2, MS5611_ADDRESS, 0xA6, 2, data);    // Read Calibration Data C3
 	c3.bytes[1] = data[0];
     c3.bytes[0] = data[1];
 
-    i2cRead(MS5611_ADDRESS, 0xA8, 2, data);    // Read Calibration Data C4
+    i2cRead(I2C2, MS5611_ADDRESS, 0xA8, 2, data);    // Read Calibration Data C4
 	c4.bytes[1] = data[0];
     c4.bytes[0] = data[1];
 
-    i2cRead(MS5611_ADDRESS, 0xAA, 2, data);    // Read Calibration Data C5
+    i2cRead(I2C2, MS5611_ADDRESS, 0xAA, 2, data);    // Read Calibration Data C5
 	c5.bytes[1] = data[0];
     c5.bytes[0] = data[1];
 
-    i2cRead(MS5611_ADDRESS, 0xAC, 2, data);    // Read Calibration Data C6
+    i2cRead(I2C2, MS5611_ADDRESS, 0xAC, 2, data);    // Read Calibration Data C6
 	c6.bytes[1] = data[0];
     c6.bytes[0] = data[1];
 
     #if   (OSR ==  256)
-	    i2cWrite(MS5611_ADDRESS, 0xFF, 0x50);  // Request temperature conversion
+	    i2cWrite(I2C2, MS5611_ADDRESS, 0xFF, 0x50);  // Request temperature conversion
 	#elif (OSR ==  512)
-	    i2cWrite(MS5611_ADDRESS, 0xFF, 0x52);
+	    i2cWrite(I2C2, MS5611_ADDRESS, 0xFF, 0x52);
 	#elif (OSR == 1024)
-	    i2cWrite(MS5611_ADDRESS, 0xFF, 0x54);
+	    i2cWrite(I2C2, MS5611_ADDRESS, 0xFF, 0x54);
 	#elif (OSR == 2048)
 	    i2cWrite(MS5611_ADDRESS, 0xFF, 0x56);
 	#elif (OSR == 4096)
-	    i2cWrite(MS5611_ADDRESS, 0xFF, 0x58);
+	    i2cWrite(I2C2, MS5611_ADDRESS, 0xFF, 0x58);
     #endif
 
     delay(10);

@@ -99,7 +99,7 @@ void readAdxl345(void)
 {
     uint8_t buffer[6];
 
-    i2cRead(ADXL345_ADDRESS, ADXL345_DATAX0, 6, buffer);
+    i2cRead(I2C2, ADXL345_ADDRESS, ADXL345_DATAX0, 6, buffer);
 
     rawAccel[YAXIS].bytes[0] = buffer[0];
     rawAccel[YAXIS].bytes[1] = buffer[1];
@@ -115,15 +115,15 @@ void readAdxl345(void)
 
 void initAdxl345(void)
 {
-    i2cWrite(ADXL345_ADDRESS, ADXL345_POWER_CTL, MEASURE);
+    i2cWrite(I2C2, ADXL345_ADDRESS, ADXL345_POWER_CTL, MEASURE);
 
     delay(10);
 
-    i2cWrite(ADXL345_ADDRESS, ADXL345_DATA_FORMAT, FULL_RES | RANGE_4_G);
+    i2cWrite(I2C2, ADXL345_ADDRESS, ADXL345_DATA_FORMAT, FULL_RES | RANGE_4_G);
 
     delay(10);
 
-    i2cWrite(ADXL345_ADDRESS, ADXL345_BW_RATE, DATA_RATE_1600);
+    i2cWrite(I2C2, ADXL345_ADDRESS, ADXL345_BW_RATE, DATA_RATE_1600);
 
     delay(100);
 

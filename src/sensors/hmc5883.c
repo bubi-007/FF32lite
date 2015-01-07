@@ -87,7 +87,7 @@ uint8_t readMag(void)
 {
     uint8_t I2C2_Buffer_Rx[6];
 
-    i2cRead(HMC5883_ADDRESS, HMC5883_DATA_X_MSB_REG, 6, I2C2_Buffer_Rx);
+    i2cRead(I2C2, HMC5883_ADDRESS, HMC5883_DATA_X_MSB_REG, 6, I2C2_Buffer_Rx);
 
     rawMag[XAXIS].bytes[1] = I2C2_Buffer_Rx[0];
     rawMag[XAXIS].bytes[0] = I2C2_Buffer_Rx[1];
@@ -112,10 +112,10 @@ void initMag(void)
     uint8_t I2C_Buffer_Rx[1] = { 0 };
     uint8_t i;
 
-    i2cWrite(HMC5883_ADDRESS, HMC5883_CONFIG_REG_A, SENSOR_CONFIG | POSITIVE_BIAS_CONFIGURATION);
+    i2cWrite(I2C2, HMC5883_ADDRESS, HMC5883_CONFIG_REG_A, SENSOR_CONFIG | POSITIVE_BIAS_CONFIGURATION);
     delay(50);
 
-    i2cWrite(HMC5883_ADDRESS, HMC5883_CONFIG_REG_B, SENSOR_GAIN);
+    i2cWrite(I2C2, HMC5883_ADDRESS, HMC5883_CONFIG_REG_B, SENSOR_GAIN);
     delay(20);
 
     magScaleFactor[XAXIS] = 0.0f;
@@ -124,12 +124,12 @@ void initMag(void)
 
     for (i = 0; i < 10; i++)
     {
-    	i2cWrite(HMC5883_ADDRESS, HMC5883_MODE_REG, OP_MODE_SINGLE);
+    	i2cWrite(I2C2, HMC5883_ADDRESS, HMC5883_MODE_REG, OP_MODE_SINGLE);
 
         delay(20);
 
         while ( (I2C_Buffer_Rx[0] & STATUS_RDY) == 0x00 )
-            i2cRead(HMC5883_ADDRESS, HMC5883_STATUS_REG, 1, I2C_Buffer_Rx);
+            i2cRead(I2C2, HMC5883_ADDRESS, HMC5883_STATUS_REG, 1, I2C_Buffer_Rx);
 
         readMag();
 
@@ -140,10 +140,13 @@ void initMag(void)
 
     magScaleFactor[XAXIS] = fabs(magScaleFactor[XAXIS] / 10.0f);
     magScaleFactor[YAXIS] = fabs(magScaleFactor[YAXIS] / 10.0f);
-    magScaleFactor[ZAXIS] = fabs(magScaleFactor[ZAXIS] / 10.0f);    i2cWrite(HMC5883_ADDRESS, HMC5883_CONFIG_REG_A, SENSOR_CONFIG | NORMAL_MEASUREMENT_CONFIGURATION);
+    magScaleFactor[ZAXIS] = fabs(magScaleFactor[ZAXIS] / 10.0f);
+
+    i2cWrite(I2C2, HMC5883_ADDRESS, HMC5883_CONFIG_REG_A, SENSOR_CONFIG | NORMAL_MEASUREMENT_CONFIGURATION);
+
     delay(20);
 
-    i2cWrite(HMC5883_ADDRESS, HMC5883_MODE_REG, OP_MODE_CONTINUOUS);
+    i2cWrite(I2C2, HMC5883_ADDRESS, HMC5883_MODE_REG, OP_MODE_CONTINUOUS);
     delay(20);
 
     readMag();
