@@ -33,7 +33,7 @@ along with FF32lite. If not, see <http://www.gnu.org/licenses/>.
 
 ///////////////////////////////////////////////////////////////////////////////
 
-extern float   axisPID[3];
+extern float   ratePID[3];
 
 extern float   verticalVelocityCmd;
 

@@ -199,7 +199,6 @@ void MargAHRSupdate(float gx, float gy, float gz,
         {
 			calculateAccConfidence(norm);
             kpAcc = eepromConfig.KpAcc * accConfidence;
-            kiAcc = eepromConfig.KiAcc * accConfidence;
 
             normR = 1.0f / norm;
             ax *= normR;
@@ -220,17 +219,6 @@ void MargAHRSupdate(float gx, float gy, float gz,
             gx += exAcc * kpAcc;
             gy += eyAcc * kpAcc;
             gz += ezAcc * kpAcc;
-
-            if (kiAcc > 0.0f)
-            {
-		    	exAccInt += exAcc * kiAcc;
-                eyAccInt += eyAcc * kiAcc;
-                ezAccInt += ezAcc * kiAcc;
-
-                gx += exAccInt;
-                gy += eyAccInt;
-                gz += ezAccInt;
-		    }
 	    }
 
         //-------------------------------------------
@@ -272,17 +260,6 @@ void MargAHRSupdate(float gx, float gy, float gz,
 			gx += exMag * eepromConfig.KpMag;
 			gy += eyMag * eepromConfig.KpMag;
 			gz += ezMag * eepromConfig.KpMag;
-
-			if (eepromConfig.KiMag > 0.0f)
-			{
-				exMagInt += exMag * eepromConfig.KiMag;
-				eyMagInt += eyMag * eepromConfig.KiMag;
-				ezMagInt += ezMag * eepromConfig.KiMag;
-
-				gx += exMagInt;
-				gy += eyMagInt;
-				gz += ezMagInt;
-			}
         }
 
         //-------------------------------------------

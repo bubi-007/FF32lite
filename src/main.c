@@ -257,15 +257,15 @@ int main(void)
             	    		                                        hEstimate);
                 }
 
-                if ( eepromConfig.activeTelemetry == 16 )
+                if ( eepromConfig.activeTelemetry == 16)
                 {
                	    // Vertical Variables
-            	    telemPortPrintF("%9.4f, %9.4f, %9.4f,%1d, %9.4f, %9.4f\n", verticalVelocityCmd,
+            	    telemPortPrintF("%9.4f, %9.4f, %9.4f, %4ld, %1d, %9.4f\n", verticalVelocityCmd,
             	    		                                                   hDotEstimate,
             	    		                                                   hEstimate,
+            	    		                                                   ms5611Temperature,
             	    		                                                   verticalModeState,
-            	    		                                                   throttleCmd,
-            	    		                                                   eepromConfig.PID[HDOT_PID].iTerm);
+            	    		                                                   throttleCmd);
                 }
 
             }

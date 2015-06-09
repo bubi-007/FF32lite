@@ -103,16 +103,16 @@ float accelTCBias[3] = { 0.0f, 0.0f, 0.0f };
 
 void initMpu6050(void)
 {
-    i2cWrite(MPU6050_ADDRESS, MPU6050_PWR_MGMT_1,   BIT_H_RESET);               // Device Reset
+    i2cWrite(I2C2, MPU6050_ADDRESS, MPU6050_PWR_MGMT_1,   BIT_H_RESET);               // Device Reset
 
     delay(150);
 
-    i2cWrite(MPU6050_ADDRESS, MPU6050_PWR_MGMT_1,   MPU_CLK_SEL_PLLGYROZ);      // Clock Source
-    i2cWrite(MPU6050_ADDRESS, MPU6050_PWR_MGMT_2,   0x00);                      // turn off all standby
-    i2cWrite(MPU6050_ADDRESS, MPU6050_SMPLRT_DIV,   0x00);                      // Accel Sample Rate 1000 Hz, Gyro Sample Rate 8000 Hz
-    i2cWrite(MPU6050_ADDRESS, MPU6050_CONFIG,       eepromConfig.dlpfSetting);  // Accel and Gyro DLPF Setting
-    i2cWrite(MPU6050_ADDRESS, MPU6050_ACCEL_CONFIG, BITS_FS_4G);                // Accel +/- 4 G Full Scale
-    i2cWrite(MPU6050_ADDRESS, MPU6050_GYRO_CONFIG,  BITS_FS_500DPS);            // Gyro +/- 500 DPS Full Scale
+    i2cWrite(I2C2, MPU6050_ADDRESS, MPU6050_PWR_MGMT_1,   MPU_CLK_SEL_PLLGYROZ);      // Clock Source
+    i2cWrite(I2C2, MPU6050_ADDRESS, MPU6050_PWR_MGMT_2,   0x00);                      // turn off all standby
+    i2cWrite(I2C2, MPU6050_ADDRESS, MPU6050_SMPLRT_DIV,   0x00);                      // Accel Sample Rate 1000 Hz, Gyro Sample Rate 8000 Hz
+    i2cWrite(I2C2, MPU6050_ADDRESS, MPU6050_CONFIG,       eepromConfig.dlpfSetting);  // Accel and Gyro DLPF Setting
+    i2cWrite(I2C2, MPU6050_ADDRESS, MPU6050_ACCEL_CONFIG, BITS_FS_4G);                // Accel +/- 4 G Full Scale
+    i2cWrite(I2C2, MPU6050_ADDRESS, MPU6050_GYRO_CONFIG,  BITS_FS_500DPS);            // Gyro +/- 500 DPS Full Scale
 
     ///////////////////////////////////
 
@@ -129,7 +129,7 @@ void readMpu6050(void)
 {
     uint8_t I2C2_Buffer_Rx[14];
 
-    i2cRead(MPU6050_ADDRESS, MPU6050_ACCEL_XOUT_H, 14, I2C2_Buffer_Rx);
+    i2cRead(I2C2, MPU6050_ADDRESS, MPU6050_ACCEL_XOUT_H, 14, I2C2_Buffer_Rx);
 
     rawAccel[XAXIS].bytes[1]   = I2C2_Buffer_Rx[ 0];
     rawAccel[XAXIS].bytes[0]   = I2C2_Buffer_Rx[ 1];
